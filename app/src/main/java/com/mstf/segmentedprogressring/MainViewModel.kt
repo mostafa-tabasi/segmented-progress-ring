@@ -5,7 +5,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
-import kotlin.random.Random
 
 class MainViewModel : ViewModel() {
 
@@ -14,10 +13,10 @@ class MainViewModel : ViewModel() {
 
     fun addProgress() {
         val updatedStories = _uiState.value.progressList.toMutableList()
-        updatedStories.add(Random.nextFloat())
+        updatedStories.add(0f) // start empty
         _uiState.update {
-            uiState.value.copy(
-                progressList = updatedStories
+            it.copy(
+                progressList = updatedStories,
             )
         }
     }
@@ -31,8 +30,44 @@ class MainViewModel : ViewModel() {
             )
         }
     }
+
+    fun updateTotalProgress(value: Float) {
+        val segmentCount = _uiState.value.progressList.size
+        if (segmentCount == 0) return
+
+        val fullSegments = value.toInt()
+        val partialProgress = value - fullSegments
+
+        val newList = MutableList(segmentCount) { 0f }
+
+        for (i in 0 until fullSegments.coerceAtMost(segmentCount)) {
+            newList[i] = 1f // completed
+        }
+        if (fullSegments < segmentCount) {
+            newList[fullSegments] = partialProgress
+        }
+
+        _uiState.update {
+            it.copy(
+                progressList = newList,
+                totalProgress = value
+            )
+        }
+    }
+
+    fun toggleControlCheckbox(checked: Boolean) {
+        _uiState.update {
+            uiState.value.copy(
+                controlAllSegmentsWithOneSlider = checked,
+                totalProgress = 0f,
+            )
+        }
+        updateTotalProgress(0f)
+    }
 }
 
 data class MainUiState(
     val progressList: List<Float> = arrayListOf(),
+    val totalProgress: Float = 0f,
+    val controlAllSegmentsWithOneSlider: Boolean = true
 )

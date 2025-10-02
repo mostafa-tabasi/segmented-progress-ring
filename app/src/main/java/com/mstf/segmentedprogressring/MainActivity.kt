@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Slider
@@ -67,12 +68,28 @@ class MainActivity : ComponentActivity() {
                         Button(onClick = {
                             viewModel.addProgress()
                         }) {
-                            Text("Add Story")
+                            Text("Add Segment")
                         }
-                        state.progressList.forEachIndexed { i, progress ->
-                            Slider(value = progress, onValueChange = {
-                                viewModel.updateProgress(i, it)
-                            })
+                        Checkbox(
+                            checked = state.controlAllSegmentsWithOneSlider,
+                            onCheckedChange = { viewModel.toggleControlCheckbox(it) }
+                        )
+                        if (state.controlAllSegmentsWithOneSlider) {
+                            Slider(
+                                modifier = Modifier.padding(horizontal = 16.dp),
+                                value = state.totalProgress,
+                                onValueChange = { viewModel.updateTotalProgress(it) },
+                                valueRange = 0f..state.progressList.size.toFloat()
+                            )
+                        } else {
+                            state.progressList.forEachIndexed { i, progress ->
+                                Slider(
+                                    modifier = Modifier.padding(horizontal = 16.dp),
+                                    value = progress,
+                                    onValueChange = {
+                                        viewModel.updateProgress(i, it)
+                                    })
+                            }
                         }
                     }
                 }
