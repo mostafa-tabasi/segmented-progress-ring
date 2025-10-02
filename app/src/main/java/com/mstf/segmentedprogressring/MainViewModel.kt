@@ -21,6 +21,16 @@ class MainViewModel : ViewModel() {
             )
         }
     }
+
+    fun updateProgress(index: Int, value: Float) {
+        val updatedProgressList = _uiState.value.progressList.toMutableList()
+        updatedProgressList[index] = value
+        _uiState.update {
+            uiState.value.copy(
+                progressList = updatedProgressList
+            )
+        }
+    }
 }
 
 data class MainUiState(

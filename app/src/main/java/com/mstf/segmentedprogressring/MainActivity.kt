@@ -17,6 +17,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -59,13 +60,19 @@ class MainActivity : ComponentActivity() {
                                 resId = R.drawable.ic_launcher_background,
                                 state.progressList,
                                 modifier = Modifier.padding(innerPadding),
-                                gapAngle = 16f,
+                                gapAngle = 12f,
+                                size = 128.dp,
                             )
                         }
                         Button(onClick = {
                             viewModel.addProgress()
                         }) {
                             Text("Add Story")
+                        }
+                        state.progressList.forEachIndexed { i, progress ->
+                            Slider(value = progress, onValueChange = {
+                                viewModel.updateProgress(i, it)
+                            })
                         }
                     }
                 }
