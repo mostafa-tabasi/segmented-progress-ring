@@ -7,10 +7,14 @@ import androidx.activity.enableEdgeToEdge
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
@@ -59,28 +63,56 @@ class MainActivity : ComponentActivity() {
                         ) {
                             CircleAvatarWithSegments(
                                 resId = R.drawable.ic_launcher_background,
-                                state.progressList,
+                                progresses = state.progressList,
                                 modifier = Modifier.padding(innerPadding),
-                                gapAngle = 12f,
-                                size = 128.dp,
+                                gapAngle = state.segmentGap,
+                                strokeWidth = state.segmentStrokeWidth.dp,
+                                size = state.avatarSize.dp,
                             )
                         }
-                        Button(onClick = {
-                            viewModel.addProgress()
-                        }) {
-                            Text("Add Segment")
+                        Button(onClick = { viewModel.addProgress() }) { Text("Add Segment") }
+                        Spacer(Modifier.height(8.dp))
+                        SliderWithText(
+                            label = "Avatar size",
+                            value = state.avatarSize,
+                            valueRange = 48f..256f,
+                            onValueChange = {
+                                viewModel.updateAvatarSize(it)
+                            })
+                        SliderWithText(
+                            label = "Segment width",
+                            value = state.segmentStrokeWidth,
+                            valueRange = 4f..16f,
+                            onValueChange = {
+                                viewModel.updateSegmentStrokeWidth(it)
+                            })
+                        SliderWithText(
+                            label = "Segment gap",
+                            value = state.segmentGap,
+                            valueRange = 4f..32f,
+                            onValueChange = {
+                                viewModel.updateSegmentGap(it)
+                            })
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.clickable {
+                                viewModel.toggleControlCheckbox()
+                            }) {
+                            Checkbox(
+                                checked = state.controlAllSegmentsWithOneSlider,
+                                onCheckedChange = { viewModel.toggleControlCheckbox() }
+                            )
+                            Text("Control all segments with one slider")
                         }
-                        Checkbox(
-                            checked = state.controlAllSegmentsWithOneSlider,
-                            onCheckedChange = { viewModel.toggleControlCheckbox(it) }
-                        )
                         if (state.controlAllSegmentsWithOneSlider) {
-                            Slider(
-                                modifier = Modifier.padding(horizontal = 16.dp),
-                                value = state.totalProgress,
-                                onValueChange = { viewModel.updateTotalProgress(it) },
-                                valueRange = 0f..state.progressList.size.toFloat()
-                            )
+                            if (state.progressList.isNotEmpty()) {
+                                Slider(
+                                    modifier = Modifier.padding(horizontal = 16.dp),
+                                    value = state.totalProgress,
+                                    onValueChange = { viewModel.updateTotalProgress(it) },
+                                    valueRange = 0f..state.progressList.size.toFloat()
+                                )
+                            }
                         } else {
                             state.progressList.forEachIndexed { i, progress ->
                                 Slider(
@@ -99,6 +131,28 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
+fun SliderWithText(
+    value: Float,
+    valueRange: ClosedFloatingPointRange<Float>,
+    onValueChange: (Float) -> Unit,
+    label: String,
+    modifier: Modifier = Modifier
+) {
+    Row(modifier = modifier, verticalAlignment = Alignment.CenterVertically) {
+        Text(
+            label,
+            modifier = Modifier.padding(start = 16.dp),
+        )
+        Slider(
+            modifier = Modifier.padding(horizontal = 16.dp),
+            value = value,
+            valueRange = valueRange,
+            onValueChange = onValueChange
+        )
+    }
+}
+
+@Composable
 fun CircleAvatarWithSegments(
     @DrawableRes resId: Int,
     progresses: List<Float>, // N segments, each 0f..1f
@@ -107,11 +161,11 @@ fun CircleAvatarWithSegments(
     strokeWidth: Dp = 6.dp,
     gapAngle: Float = 6f, // margin in degrees between segments
     progressColor: Color = MaterialTheme.colorScheme.primary,
-    trackColor: Color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f),
+    trackColor: Color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.25f),
     contentDescription: String? = null
 ) {
     val stroke = with(LocalDensity.current) {
-        Stroke(width = strokeWidth.toPx(), cap = StrokeCap.Round)
+        Stroke(width = strokeWidth.toPx(), cap = StrokeCap.Butt)
     }
 
     Box(contentAlignment = Alignment.Center, modifier = modifier) {

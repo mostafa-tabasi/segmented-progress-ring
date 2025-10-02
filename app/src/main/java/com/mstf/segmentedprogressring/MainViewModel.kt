@@ -55,19 +55,40 @@ class MainViewModel : ViewModel() {
         }
     }
 
-    fun toggleControlCheckbox(checked: Boolean) {
+    fun toggleControlCheckbox() {
         _uiState.update {
             uiState.value.copy(
-                controlAllSegmentsWithOneSlider = checked,
+                controlAllSegmentsWithOneSlider = !uiState.value.controlAllSegmentsWithOneSlider,
                 totalProgress = 0f,
             )
         }
         updateTotalProgress(0f)
+    }
+
+    fun updateAvatarSize(size: Float) {
+        _uiState.update {
+            uiState.value.copy(avatarSize = size)
+        }
+    }
+
+    fun updateSegmentStrokeWidth(width: Float) {
+        _uiState.update {
+            uiState.value.copy(segmentStrokeWidth = width)
+        }
+    }
+
+    fun updateSegmentGap(size: Float) {
+        _uiState.update {
+            uiState.value.copy(segmentGap = size)
+        }
     }
 }
 
 data class MainUiState(
     val progressList: List<Float> = arrayListOf(),
     val totalProgress: Float = 0f,
-    val controlAllSegmentsWithOneSlider: Boolean = true
+    val controlAllSegmentsWithOneSlider: Boolean = false,
+    val avatarSize: Float = 128f,
+    val segmentStrokeWidth: Float = 6f,
+    val segmentGap: Float = 12f,
 )
