@@ -71,6 +71,12 @@ class MainViewModel : ViewModel() {
         }
     }
 
+    fun updateAvatarPadding(padding: Float) {
+        _uiState.update {
+            uiState.value.copy(avatarPadding = padding)
+        }
+    }
+
     fun updateSegmentStrokeWidth(width: Float) {
         _uiState.update {
             uiState.value.copy(segmentStrokeWidth = width)
@@ -89,6 +95,7 @@ data class MainUiState(
     val totalProgress: Float = 0f,
     val controlAllSegmentsWithOneSlider: Boolean = false,
     val avatarSize: Float = 128f,
-    val segmentStrokeWidth: Float = 6f,
-    val segmentGap: Float = 12f,
+    val avatarPadding: Float = 4f,
+    val segmentStrokeWidth: Float = 10f,
+    val segmentGap: Float = 4f,
 )

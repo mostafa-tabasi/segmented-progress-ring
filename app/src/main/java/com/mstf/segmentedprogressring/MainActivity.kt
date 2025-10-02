@@ -56,71 +56,85 @@ class MainActivity : ComponentActivity() {
                     Column(
                         Modifier.fillMaxSize(),
                         verticalArrangement = Arrangement.Center,
-                        horizontalAlignment = Alignment.CenterHorizontally
+                        horizontalAlignment = Alignment.CenterHorizontally,
                     ) {
                         Box(
+                            modifier = Modifier.weight(1f),
                             contentAlignment = Alignment.Center
                         ) {
                             CircleAvatarWithSegments(
-                                resId = R.drawable.ic_launcher_background,
+                                resId = R.drawable.profile,
                                 progresses = state.progressList,
                                 modifier = Modifier.padding(innerPadding),
                                 gapAngle = state.segmentGap,
                                 strokeWidth = state.segmentStrokeWidth.dp,
                                 size = state.avatarSize.dp,
+                                avatarPadding = state.avatarPadding.dp,
                             )
                         }
-                        Button(onClick = { viewModel.addProgress() }) { Text("Add Segment") }
-                        Spacer(Modifier.height(8.dp))
-                        SliderWithText(
-                            label = "Avatar size",
-                            value = state.avatarSize,
-                            valueRange = 48f..256f,
-                            onValueChange = {
-                                viewModel.updateAvatarSize(it)
-                            })
-                        SliderWithText(
-                            label = "Segment width",
-                            value = state.segmentStrokeWidth,
-                            valueRange = 4f..16f,
-                            onValueChange = {
-                                viewModel.updateSegmentStrokeWidth(it)
-                            })
-                        SliderWithText(
-                            label = "Segment gap",
-                            value = state.segmentGap,
-                            valueRange = 4f..32f,
-                            onValueChange = {
-                                viewModel.updateSegmentGap(it)
-                            })
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier.clickable {
-                                viewModel.toggleControlCheckbox()
-                            }) {
-                            Checkbox(
-                                checked = state.controlAllSegmentsWithOneSlider,
-                                onCheckedChange = { viewModel.toggleControlCheckbox() }
-                            )
-                            Text("Control all segments with one slider")
-                        }
-                        if (state.controlAllSegmentsWithOneSlider) {
-                            if (state.progressList.isNotEmpty()) {
-                                Slider(
-                                    modifier = Modifier.padding(horizontal = 16.dp),
-                                    value = state.totalProgress,
-                                    onValueChange = { viewModel.updateTotalProgress(it) },
-                                    valueRange = 0f..state.progressList.size.toFloat()
+                        Column(
+                            Modifier.weight(2f),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                        ) {
+                            Button(onClick = { viewModel.addProgress() }) { Text("Add Segment") }
+                            Spacer(Modifier.height(8.dp))
+                            SliderWithText(
+                                label = "Avatar size",
+                                value = state.avatarSize,
+                                valueRange = 48f..256f,
+                                onValueChange = {
+                                    viewModel.updateAvatarSize(it)
+                                })
+                            SliderWithText(
+                                label = "Avatar padding",
+                                value = state.avatarPadding,
+                                valueRange = 4f..24f,
+                                onValueChange = {
+                                    viewModel.updateAvatarPadding(it)
+                                })
+                            SliderWithText(
+                                label = "Segment width",
+                                value = state.segmentStrokeWidth,
+                                valueRange = 4f..16f,
+                                onValueChange = {
+                                    viewModel.updateSegmentStrokeWidth(it)
+                                })
+                            SliderWithText(
+                                label = "Segment gap",
+                                value = state.segmentGap,
+                                valueRange = 1f..32f,
+                                onValueChange = {
+                                    viewModel.updateSegmentGap(it)
+                                })
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier.clickable {
+                                    viewModel.toggleControlCheckbox()
+                                }) {
+                                Checkbox(
+                                    checked = state.controlAllSegmentsWithOneSlider,
+                                    onCheckedChange = { viewModel.toggleControlCheckbox() }
                                 )
+                                Text("Control all segments with one slider")
                             }
-                        } else {
-                            state.progressList.forEachIndexed { i, progress ->
-                                Slider(
-                                    modifier = Modifier.padding(horizontal = 16.dp),
-                                    value = progress,
-                                    onValueChange = {
-                                        viewModel.updateProgress(i, it)
-                                    })
+                            if (state.controlAllSegmentsWithOneSlider) {
+                                if (state.progressList.isNotEmpty()) {
+                                    Slider(
+                                        modifier = Modifier.padding(horizontal = 16.dp),
+                                        value = state.totalProgress,
+                                        onValueChange = { viewModel.updateTotalProgress(it) },
+                                        valueRange = 0f..state.progressList.size.toFloat()
+                                    )
+                                }
+                            } else {
+                                state.progressList.forEachIndexed { i, progress ->
+                                    Slider(
+                                        modifier = Modifier.padding(horizontal = 16.dp),
+                                        value = progress,
+                                        onValueChange = {
+                                            viewModel.updateProgress(i, it)
+                                        })
+                                }
                             }
                         }
                     }
@@ -158,6 +172,7 @@ fun CircleAvatarWithSegments(
     progresses: List<Float>, // N segments, each 0f..1f
     modifier: Modifier = Modifier,
     size: Dp = 64.dp,
+    avatarPadding: Dp = 4.dp,
     strokeWidth: Dp = 6.dp,
     gapAngle: Float = 6f, // margin in degrees between segments
     progressColor: Color = MaterialTheme.colorScheme.primary,
@@ -212,7 +227,7 @@ fun CircleAvatarWithSegments(
             contentDescription = contentDescription,
             contentScale = ContentScale.Crop,
             modifier = Modifier
-                .size(size - strokeWidth - 4.dp) // keeps it inside the ring
+                .size(size - strokeWidth - avatarPadding) // keeps it inside the ring
                 .clip(CircleShape)
         )
     }
