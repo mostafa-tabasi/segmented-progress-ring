@@ -7,17 +7,21 @@ import androidx.activity.enableEdgeToEdge
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.MaterialTheme
@@ -62,15 +66,26 @@ class MainActivity : ComponentActivity() {
                             modifier = Modifier.weight(1f),
                             contentAlignment = Alignment.Center
                         ) {
-                            CircleAvatarWithSegments(
-                                resId = R.drawable.profile,
-                                progresses = state.progressList,
-                                modifier = Modifier.padding(innerPadding),
-                                gapAngle = state.segmentGap,
-                                strokeWidth = state.segmentStrokeWidth.dp,
-                                size = state.avatarSize.dp,
-                                avatarPadding = state.avatarPadding.dp,
-                            )
+                            if (state.isLinear) {
+                                LinearSegmentedProgressBar(
+                                    progresses = state.progressList,
+                                    strokeWidth = state.segmentStrokeWidth.dp,
+                                    gap = state.segmentGap,
+                                    modifier = Modifier
+                                        .padding(innerPadding)
+                                        .padding(horizontal = 32.dp)
+                                )
+                            } else {
+                                CircleAvatarWithSegments(
+                                    resId = R.drawable.profile,
+                                    progresses = state.progressList,
+                                    modifier = Modifier.padding(innerPadding),
+                                    gapAngle = state.segmentGap,
+                                    strokeWidth = state.segmentStrokeWidth.dp,
+                                    size = state.avatarSize.dp,
+                                    avatarPadding = state.avatarPadding.dp,
+                                )
+                            }
                         }
                         Column(
                             Modifier.weight(2f),
@@ -102,7 +117,7 @@ class MainActivity : ComponentActivity() {
                             SliderWithText(
                                 label = "Segment gap",
                                 value = state.segmentGap,
-                                valueRange = 1f..32f,
+                                valueRange = 0f..32f,
                                 onValueChange = {
                                     viewModel.updateSegmentGap(it)
                                 })
@@ -116,6 +131,16 @@ class MainActivity : ComponentActivity() {
                                     onCheckedChange = { viewModel.toggleControlCheckbox() }
                                 )
                                 Text("Control all segments with one slider")
+                            }
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier.clickable { viewModel.toggleShowLinear() }
+                            ) {
+                                Checkbox(
+                                    checked = state.isLinear,
+                                    onCheckedChange = { viewModel.toggleShowLinear() }
+                                )
+                                Text("Show linear progress bar")
                             }
                             if (state.controlAllSegmentsWithOneSlider) {
                                 if (state.progressList.isNotEmpty()) {
@@ -230,5 +255,43 @@ fun CircleAvatarWithSegments(
                 .size(size - strokeWidth - avatarPadding) // keeps it inside the ring
                 .clip(CircleShape)
         )
+    }
+}
+
+@Composable
+fun LinearSegmentedProgressBar(
+    progresses: List<Float>, // each 0f..1f
+    modifier: Modifier = Modifier,
+    strokeWidth: Dp = 8.dp, // same as "segmentStrokeWidth"
+    gap: Float = 4f,        // same as "segmentGap"
+    progressColor: Color = MaterialTheme.colorScheme.primary,
+    trackColor: Color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.25f)
+) {
+    if (progresses.isEmpty()) return
+
+    val gapDp = gap.dp
+
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .height(strokeWidth)
+            .clip(RoundedCornerShape(strokeWidth / 2)),
+        horizontalArrangement = Arrangement.spacedBy(gapDp)
+    ) {
+        progresses.forEach { progress ->
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxHeight()
+                    .background(trackColor, RoundedCornerShape(strokeWidth / 2))
+            ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxHeight()
+                        .fillMaxWidth(progress.coerceIn(0f, 1f))
+                        .background(progressColor, RoundedCornerShape(strokeWidth / 2))
+                )
+            }
+        }
     }
 }

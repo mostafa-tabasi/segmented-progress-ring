@@ -25,7 +25,7 @@ class MainViewModel : ViewModel() {
         val updatedProgressList = _uiState.value.progressList.toMutableList()
         updatedProgressList[index] = value
         _uiState.update {
-            uiState.value.copy(
+            it.copy(
                 progressList = updatedProgressList
             )
         }
@@ -57,7 +57,7 @@ class MainViewModel : ViewModel() {
 
     fun toggleControlCheckbox() {
         _uiState.update {
-            uiState.value.copy(
+            it.copy(
                 controlAllSegmentsWithOneSlider = !uiState.value.controlAllSegmentsWithOneSlider,
                 totalProgress = 0f,
             )
@@ -67,25 +67,31 @@ class MainViewModel : ViewModel() {
 
     fun updateAvatarSize(size: Float) {
         _uiState.update {
-            uiState.value.copy(avatarSize = size)
+            it.copy(avatarSize = size)
         }
     }
 
     fun updateAvatarPadding(padding: Float) {
         _uiState.update {
-            uiState.value.copy(avatarPadding = padding)
+            it.copy(avatarPadding = padding)
         }
     }
 
     fun updateSegmentStrokeWidth(width: Float) {
         _uiState.update {
-            uiState.value.copy(segmentStrokeWidth = width)
+            it.copy(segmentStrokeWidth = width)
         }
     }
 
     fun updateSegmentGap(size: Float) {
         _uiState.update {
-            uiState.value.copy(segmentGap = size)
+            it.copy(segmentGap = size)
+        }
+    }
+
+    fun toggleShowLinear() {
+        _uiState.update {
+            it.copy(isLinear = !it.isLinear)
         }
     }
 }
@@ -98,4 +104,5 @@ data class MainUiState(
     val avatarPadding: Float = 4f,
     val segmentStrokeWidth: Float = 10f,
     val segmentGap: Float = 4f,
+    val isLinear: Boolean = false,
 )
